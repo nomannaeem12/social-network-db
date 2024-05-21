@@ -5,7 +5,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export class BasicEntity {
+export class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -16,5 +16,5 @@ export class BasicEntity {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt?: Date;
+  deletedAt: Date;
 }

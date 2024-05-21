@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { LoginDto } from './dto/login-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginDto } from '../auth/dto/login.dto';
+import { User } from './entities/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,47 +13,68 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
-  async signIn(user: LoginDto) {
-    const dbUser = this.userRepository.findOneOrFail({
-      where: { email: user.email },
-      select: ['id', 'email', 'password'],
-    });
-    if (!dbUser) {
-      throw new Error('User not found');
-    }
-    const areEqual = await bcrypt.compare(
-      user.password,
-      (await dbUser).password,
-    );
-    if (!areEqual) {
-      throw new Error('Invalid credential');
-    }
-    return dbUser;
-  }
-
   async create(createUserDto: CreateUserDto) {
     const user = new User();
     user.firstName = createUserDto.firstName;
     user.lastName = createUserDto.lastName;
     user.email = createUserDto.email;
     user.password = createUserDto.password;
+    user.createdAt = new Date();
+    user.lastSeen = new Date();
     return await this.userRepository.save(user);
   }
 
+  async signIn(user: LoginDto) {
+    const dbUser = await this.userRepository.findOneOrFail({
+      where: { email: user.email },
+    });
+    dbUser.lastSeen = new Date();
+    await this.userRepository.save(dbUser);
+    return dbUser;
+  }
+
   findAll() {
-    return `This action returns all users`;
+    return this.userRepository.find({
+      order: { createdAt: 'DESC' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async getUser() {
+    return await this.userRepository.find({ order: { createdAt: 'DESC' } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findOneByEmail(
+    email: string,
+    selectPassword = false,
+  ): Promise<User | undefined> {
+    return await this.userRepository.findOne({
+      where: { email },
+      select: { id: true, email: true, password: selectPassword },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findOne(id: number): Promise<User | undefined> {
+    return await this.userRepository.findOne({
+      where: { id },
+    });
+  }
+
+  async findOneForLogin(id: number): Promise<User | undefined> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+    user.lastSeen = new Date();
+    return await this.userRepository.save(user);
+  }
+
+  async updateUser(id: number, body: UpdateUserDto): Promise<User | undefined> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    user.firstName = body.firstName;
+    user.lastName = body.lastName;
+    user.email = body.email;
+    if (body.password) {
+      user.password = await bcrypt.hash(body.password, 10);
+    }
+    return await this.userRepository.save(user);
   }
 }
