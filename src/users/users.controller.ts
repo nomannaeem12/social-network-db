@@ -14,14 +14,19 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Post('filter')
+  filteredUser(@Body() filterDto: { searchText: string }) {
+    return this.usersService.filteredUser(filterDto);
+  }
+
   @Get('')
   findAll() {
     return this.usersService.findAll();
   }
 
-  @Get('/userDetails')
-  async getUsers() {
-    return await this.usersService.getUser();
+  @Get(':id/messages')
+  async getUserMessages(@Param('id') id: number) {
+    return await this.usersService.getUserMessages(id);
   }
 
   @Get(':id')

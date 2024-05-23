@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from '../auth/dto/login.dto';
 import { User } from './entities/user.entity';
@@ -19,9 +19,19 @@ export class UsersService {
     user.lastName = createUserDto.lastName;
     user.email = createUserDto.email;
     user.password = createUserDto.password;
-    user.createdAt = new Date();
     user.lastSeen = new Date();
     return await this.userRepository.save(user);
+  }
+
+
+  async filteredUser(filteredDto: { searchText: string }) {
+    return await this.userRepository.find({
+      where: [
+        { firstName: ILike(`%${filteredDto.searchText}%`) },
+        { lastName: ILike(`%${filteredDto.searchText}%`) },
+      ],
+      take: 10,
+    });
   }
 
   async signIn(user: LoginDto) {
@@ -39,8 +49,12 @@ export class UsersService {
     });
   }
 
-  async getUser() {
-    return await this.userRepository.find({ order: { createdAt: 'DESC' } });
+  async getUserMessages(id: number) {
+    return await this.userRepository.findOne({
+      where: { id },
+      relations: ['inbox', 'outbox'],
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findOneByEmail(
