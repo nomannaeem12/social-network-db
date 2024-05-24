@@ -24,7 +24,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id/messages')
+  @Get(':id/get-messages')
   async getUserMessages(@Param('id') id: number) {
     return await this.usersService.getUserMessages(id);
   }
