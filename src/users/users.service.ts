@@ -23,7 +23,6 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-
   async filteredUser(filteredDto: { searchText: string }) {
     return await this.userRepository.find({
       where: [
@@ -49,10 +48,19 @@ export class UsersService {
     });
   }
 
-  async getUserMessages(id: number) {
-    return await this.userRepository.findOne({
-      where: { id },
-      relations: ['inbox', 'outbox'],
+  async getUserMessages(recipientId: number, currentUser: User) {
+    return await this.userRepository.findOneOrFail({
+      where: [
+        {
+          id: currentUser.id,
+          inbox: { senderId: recipientId, receiverId: currentUser.id },
+        },
+        {
+          id: currentUser.id,
+          outbox: { senderId: currentUser.id, receiverId: recipientId },
+        },
+      ],
+      relations: { inbox: { message: true }, outbox: { message: true } },
       order: { createdAt: 'DESC' },
     });
   }

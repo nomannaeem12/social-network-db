@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -24,9 +24,9 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id/get-messages')
-  async getUserMessages(@Param('id') id: number) {
-    return await this.usersService.getUserMessages(id);
+  @Get(':recipientId/get-messages')
+  async getUserMessages(@Param('recipientId') recipientId: number, @Req() req: any) {
+    return await this.usersService.getUserMessages(recipientId, req.user);
   }
 
   @Get(':id')

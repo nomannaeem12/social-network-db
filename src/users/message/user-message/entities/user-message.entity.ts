@@ -17,11 +17,11 @@ export class UserMessage extends BaseEntity {
   @JoinColumn({ name: 'messageId' })
   message: Message;
 
-  @ManyToOne(() => User, (u) => u.inbox, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (u) => u.outbox, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'senderId' })
   sender: User;
 
-  @ManyToOne(() => Message, (m) => m.userMessages, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (u) => u.inbox, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'receiverId' })
   receiver: User;
 }
