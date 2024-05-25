@@ -15,10 +15,7 @@ export class UserMessageService {
     private messageService: MessageService,
   ) {}
 
-  async create(
-    createUserMessageDto: CreateUserMessageDto,
-    currentUser: User,
-  ) {
+  async create(createUserMessageDto: CreateUserMessageDto, currentUser: User) {
     const userMessage = new UserMessage();
     const message = await this.messageService.create({
       text: createUserMessageDto.text,
@@ -26,7 +23,8 @@ export class UserMessageService {
     userMessage.senderId = currentUser.id;
     userMessage.receiverId = createUserMessageDto.receiverId;
     userMessage.messageId = message.id;
-    return await this.userMessageRepository.save(userMessage);
+    const savedMessage = await this.userMessageRepository.save(userMessage);
+    return { ...savedMessage, message };
   }
 
   findAll() {
