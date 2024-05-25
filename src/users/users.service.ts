@@ -49,20 +49,28 @@ export class UsersService {
   }
 
   async getUserMessages(recipientId: number, currentUser: User) {
-    return await this.userRepository.findOneOrFail({
-      where: [
-        {
-          id: currentUser.id,
-          inbox: { senderId: recipientId, receiverId: currentUser.id },
-        },
-        {
-          id: currentUser.id,
-          outbox: { senderId: currentUser.id, receiverId: recipientId },
-        },
-      ],
-      relations: { inbox: { message: true }, outbox: { message: true } },
-      order: { createdAt: 'DESC' },
+    const inboxMessages = await this.userRepository.findOne({
+      where: {
+        id: currentUser.id,
+        inbox: { senderId: recipientId },
+      },
+      relations: { inbox: { message: true } },
+      order: { inbox: { createdAt: 'DESC' } },
     });
+
+    const outboxMessages = await this.userRepository.findOne({
+      where: {
+        id: currentUser.id,
+        outbox: { receiverId: recipientId },
+      },
+      relations: { outbox: { message: true } },
+      order: { outbox: { createdAt: 'DESC' } },
+    });
+
+    return {
+      inbox: inboxMessages ? inboxMessages.inbox : [],
+      outbox: outboxMessages ? outboxMessages.outbox : [],
+    };
   }
 
   async findOneByEmail(
