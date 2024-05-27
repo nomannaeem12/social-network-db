@@ -4,20 +4,20 @@ import { UpdateUserMessageDto } from './dto/update-user-message.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserMessage } from './entities/user-message.entity';
-import { MessageService } from '../message.service';
-import { User } from '../../entities/user.entity';
+import { User } from '../entities/user.entity';
+import { MessagesService } from '../../messages/messages.service';
 
 @Injectable()
-export class UserMessageService {
+export class UserMessagesService {
   constructor(
     @InjectRepository(UserMessage)
     private userMessageRepository: Repository<UserMessage>,
-    private messageService: MessageService,
+    private messagesService: MessagesService,
   ) {}
 
   async create(createUserMessageDto: CreateUserMessageDto, currentUser: User) {
     const userMessage = new UserMessage();
-    const message = await this.messageService.create({
+    const message = await this.messagesService.create({
       text: createUserMessageDto.text,
     });
     userMessage.senderId = currentUser.id;
