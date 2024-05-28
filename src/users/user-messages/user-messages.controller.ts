@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { UserMessagesService } from './user-messages.service';
 import { CreateUserMessageDto } from './dto/create-user-message.dto';
 import { UpdateUserMessageDto } from './dto/update-user-message.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { UserMessageDto } from './dto/user-message.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user-message')
@@ -12,6 +23,11 @@ export class UserMessagesController {
   @Post()
   create(@Body() createUserMessageDto: CreateUserMessageDto, @Req() req: any) {
     return this.userMessagesService.create(createUserMessageDto, req.user);
+  }
+
+  @Post('filteredUserMessages')
+  async getUserMessages(@Body() userMessageDto: UserMessageDto) {
+    return await this.userMessagesService.getUserMessages(userMessageDto);
   }
 
   @Get()
@@ -25,7 +41,10 @@ export class UserMessagesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserMessageDto: UpdateUserMessageDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserMessageDto: UpdateUserMessageDto,
+  ) {
     return this.userMessagesService.update(+id, updateUserMessageDto);
   }
 

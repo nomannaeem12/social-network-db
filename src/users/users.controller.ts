@@ -24,11 +24,6 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':recipientId/get-messages')
-  async getUserMessages(@Param('recipientId') recipientId: number, @Req() req: any) {
-    return await this.usersService.getUserMessages(recipientId, req.user);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);

@@ -1,9 +1,9 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateUserMessageDto {
+export class UserMessageDto {
   @IsNotEmpty()
-  recipientId: number;
+  initiatorId: number;
 
   @IsNotEmpty()
-  text: string;
+  recipientId: number;
 }

@@ -26,11 +26,13 @@ export class MessagesService {
     return `This action returns a #${id} message`;
   }
 
-  update(id: number, updateMessageDto: UpdateMessageDto) {
-    return `This action updates a #${id} message`;
+  async update(id: number, updateMessageDto: UpdateMessageDto) {
+    const message = await this.messageRepository.findOne({ where: { id } });
+    message.text = updateMessageDto.text;
+    return await this.messageRepository.save(message);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} message`;
+  async remove(id: number) {
+    return await this.messageRepository.delete(id);
   }
 }

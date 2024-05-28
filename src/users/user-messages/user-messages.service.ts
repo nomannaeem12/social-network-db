@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { UserMessage } from './entities/user-message.entity';
 import { User } from '../entities/user.entity';
 import { MessagesService } from '../../messages/messages.service';
+import { UserMessageDto } from './dto/user-message.dto';
 
 @Injectable()
 export class UserMessagesService {
@@ -21,10 +22,36 @@ export class UserMessagesService {
       text: createUserMessageDto.text,
     });
     userMessage.senderId = currentUser.id;
-    userMessage.receiverId = createUserMessageDto.receiverId;
+    userMessage.receiverId = createUserMessageDto.recipientId;
     userMessage.messageId = message.id;
-    const savedMessage = await this.userMessageRepository.save(userMessage);
-    return { ...savedMessage, message };
+    const savedUserMessage = await this.userMessageRepository.save(userMessage);
+    return { ...savedUserMessage, message };
+  }
+
+  async getUserMessages(userMessageDto: UserMessageDto) {
+    const { recipientId, initiatorId } = userMessageDto;
+    const inboxMessages = await this.userMessageRepository.find({
+      where: {
+        senderId: recipientId,
+        receiverId: initiatorId,
+      },
+      relations: { message: true },
+      order: { createdAt: 'DESC' },
+    });
+
+    const outboxMessages = await this.userMessageRepository.find({
+      where: {
+        senderId: initiatorId,
+        receiverId: recipientId,
+      },
+      relations: { message: true },
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      inbox: inboxMessages ?? [],
+      outbox: outboxMessages ?? [],
+    };
   }
 
   findAll() {
@@ -35,11 +62,21 @@ export class UserMessagesService {
     return `This action returns a #${id} userMessage`;
   }
 
-  update(id: number, updateUserMessageDto: UpdateUserMessageDto) {
-    return `This action updates a #${id} userMessage`;
+  async update(id: number, updateUserMessageDto: UpdateUserMessageDto) {
+    const userMessage = await this.userMessageRepository.findOne({
+      where: { id },
+    });
+    const message = await this.messagesService.update(userMessage.messageId, {
+      text: updateUserMessageDto.text,
+    });
+    userMessage.isEdited = true;
+    const updatedUserMessage = await this.userMessageRepository.save(
+      userMessage,
+    );
+    return { ...updatedUserMessage, message };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} userMessage`;
+  async remove(id: number) {
+    return await this.userMessageRepository.delete(id);
   }
 }

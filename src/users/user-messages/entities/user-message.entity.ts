@@ -13,6 +13,9 @@ export class UserMessage extends BaseEntity {
   @Column()
   receiverId: number;
 
+  @Column({ default: false })
+  isEdited: boolean;
+
   @ManyToOne(() => Message, (m) => m.userMessages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'messageId' })
   message: Message;
