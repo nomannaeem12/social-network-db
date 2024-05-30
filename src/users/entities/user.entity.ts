@@ -26,9 +26,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true, select: false })
   resetTokenExpiration: Date;
 
-  @OneToMany(() => UserMessage, (um) => um.receiver, { cascade: true })
+  @OneToMany(() => UserMessage, (um) => um.recipient, { cascade: true })
   inbox: UserMessage[];
 
-  @OneToMany(() => UserMessage, (um) => um.sender, { cascade: true })
+  @OneToMany(() => UserMessage, (um) => um.initiator, { cascade: true })
   outbox: UserMessage[];
 }

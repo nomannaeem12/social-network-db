@@ -21,8 +21,8 @@ export class UserMessagesService {
     const message = await this.messagesService.create({
       text: createUserMessageDto.text,
     });
-    userMessage.senderId = currentUser.id;
-    userMessage.receiverId = createUserMessageDto.recipientId;
+    userMessage.initiatorId = currentUser.id;
+    userMessage.recipientId = createUserMessageDto.recipientId;
     userMessage.messageId = message.id;
     const savedUserMessage = await this.userMessageRepository.save(userMessage);
     return { ...savedUserMessage, message };
@@ -32,8 +32,8 @@ export class UserMessagesService {
     const { recipientId, initiatorId } = userMessageDto;
     const inboxMessages = await this.userMessageRepository.find({
       where: {
-        senderId: recipientId,
-        receiverId: initiatorId,
+        initiatorId: recipientId,
+        recipientId: initiatorId,
       },
       relations: { message: true },
       order: { createdAt: 'DESC' },
@@ -41,8 +41,8 @@ export class UserMessagesService {
 
     const outboxMessages = await this.userMessageRepository.find({
       where: {
-        senderId: initiatorId,
-        receiverId: recipientId,
+        initiatorId: initiatorId,
+        recipientId: recipientId,
       },
       relations: { message: true },
       order: { createdAt: 'DESC' },
@@ -69,7 +69,7 @@ export class UserMessagesService {
     const message = await this.messagesService.update(userMessage.messageId, {
       text: updateUserMessageDto.text,
     });
-    userMessage.isEdited = true;
+    userMessage.isMessageEdited = true;
     const updatedUserMessage = await this.userMessageRepository.save(
       userMessage,
     );

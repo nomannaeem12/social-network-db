@@ -8,23 +8,32 @@ export class UserMessage extends BaseEntity {
   messageId: number;
 
   @Column()
-  senderId: number;
+  initiatorId: number;
 
   @Column()
-  receiverId: number;
+  recipientId: number;
 
   @Column({ default: false })
-  isEdited: boolean;
+  isMessageEdited: boolean;
+
+  @Column({ default: false })
+  isMessageRead: boolean;
+
+  @Column({ default: false })
+  isInitiatorMessageDeleted: boolean;
+
+  @Column({ default: false })
+  isRecipientMessageDeleted: boolean;
 
   @ManyToOne(() => Message, (m) => m.userMessages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'messageId' })
   message: Message;
 
   @ManyToOne(() => User, (u) => u.outbox, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'senderId' })
-  sender: User;
+  @JoinColumn({ name: 'initiatorId' })
+  initiator: User;
 
   @ManyToOne(() => User, (u) => u.inbox, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'receiverId' })
-  receiver: User;
+  @JoinColumn({ name: 'recipientId' })
+  recipient: User;
 }
