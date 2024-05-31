@@ -19,11 +19,11 @@ export class UserMessage extends BaseEntity {
   @Column({ default: false })
   isMessageRead: boolean;
 
-  @Column({ default: false })
-  isInitiatorMessageDeleted: boolean;
+  @Column({ default: false, select: false })
+  initiatorMessageDeleted: boolean;
 
-  @Column({ default: false })
-  isRecipientMessageDeleted: boolean;
+  @Column({ default: false, select: false })
+  recipientMessageDeleted: boolean;
 
   @ManyToOne(() => Message, (m) => m.userMessages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'messageId' })

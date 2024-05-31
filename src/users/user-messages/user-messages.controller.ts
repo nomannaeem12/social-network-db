@@ -14,6 +14,7 @@ import { CreateUserMessageDto } from './dto/create-user-message.dto';
 import { UpdateUserMessageDto } from './dto/update-user-message.dto';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UserMessageDto } from './dto/user-message.dto';
+import { DeleteUserMessageDto } from './dto/delete-user-message.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user-message')
@@ -28,6 +29,17 @@ export class UserMessagesController {
   @Post('filteredUserMessages')
   async getUserMessages(@Body() userMessageDto: UserMessageDto) {
     return await this.userMessagesService.getUserMessages(userMessageDto);
+  }
+
+  @Post('deleteUserMessage/:id')
+  async deleteUserMessage(
+    @Param('id') id: string,
+    @Body() deleteUserMessageDto: DeleteUserMessageDto,
+  ) {
+    return await this.userMessagesService.deleteMessage(
+      +id,
+      deleteUserMessageDto,
+    );
   }
 
   @Get()

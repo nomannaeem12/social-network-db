@@ -7,6 +7,7 @@ import { UserMessage } from './entities/user-message.entity';
 import { User } from '../entities/user.entity';
 import { MessagesService } from '../../messages/messages.service';
 import { UserMessageDto } from './dto/user-message.dto';
+import { DeleteUserMessageDto } from './dto/delete-user-message.dto';
 
 @Injectable()
 export class UserMessagesService {
@@ -34,6 +35,7 @@ export class UserMessagesService {
       where: {
         initiatorId: recipientId,
         recipientId: initiatorId,
+        recipientMessageDeleted: false,
       },
       relations: { message: true },
       order: { createdAt: 'DESC' },
@@ -43,6 +45,7 @@ export class UserMessagesService {
       where: {
         initiatorId: initiatorId,
         recipientId: recipientId,
+        initiatorMessageDeleted: false,
       },
       relations: { message: true },
       order: { createdAt: 'DESC' },
@@ -74,6 +77,19 @@ export class UserMessagesService {
       userMessage,
     );
     return { ...updatedUserMessage, message };
+  }
+
+  async deleteMessage(id: number, deleteUserMessageDto: DeleteUserMessageDto) {
+    const userMessage = await this.userMessageRepository.findOne({
+      where: { id },
+    });
+    if (deleteUserMessageDto.deleteType === 'DeleteForEveryone')
+      return await this.messagesService.remove(userMessage.messageId);
+    if (deleteUserMessageDto.deleteType === 'DeleteInitiatedMessage')
+      userMessage.initiatorMessageDeleted = true;
+    if (deleteUserMessageDto.deleteType === 'DeleteRecipientMessage')
+      userMessage.recipientMessageDeleted = true;
+    return this.userMessageRepository.save(userMessage);
   }
 
   async remove(id: number) {
