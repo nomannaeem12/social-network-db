@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../shared/entities/BaseEntity';
 import { UserMessage } from '../user-messages/entities/user-message.entity';
+
 @Entity()
 export class User extends BaseEntity {
   @Column()
@@ -19,12 +20,6 @@ export class User extends BaseEntity {
 
   @Column({ select: false })
   password: string;
-
-  @Column({ nullable: true, select: false })
-  resetToken: string;
-
-  @Column({ nullable: true, select: false })
-  resetTokenExpiration: Date;
 
   @OneToMany(() => UserMessage, (um) => um.recipient, { cascade: true })
   inbox: UserMessage[];
