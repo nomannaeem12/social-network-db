@@ -9,6 +9,7 @@ import { LoggerModule } from './shared/logger/logger.module';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
+import { AccountsModule } from './accounts/accounts.module';
 
 export const ormOptions: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -29,6 +30,7 @@ export const ormOptions: TypeOrmModuleOptions = {
     ConfigModule.forRoot({ isGlobal: true }),
     LoggerModule.forRoot(),
     ScheduleModule.forRoot(),
+    AccountsModule,
   ],
   controllers: [AppController],
   providers: [
