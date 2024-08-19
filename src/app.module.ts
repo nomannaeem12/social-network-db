@@ -12,13 +12,16 @@ import { AuthInterceptor } from './interceptor/auth.interceptor';
 
 export const ormOptions: TypeOrmModuleOptions = {
   type: 'postgres',
-  host: '127.0.0.1',
+  host: 'dpg-cr1mv85umphs73afuo00-a.oregon-postgres.render.com', // Updated to your online host
   port: 5432,
-  username: 'postgres',
-  password: 'postgres',
-  database: 'socialNetwork',
+  username: 'socail_c_user', // Updated to your online username
+  password: '1ZMF2elYPT4mfjO6lA4iqaxw3XwpyrE6', // Updated to your online password
+  database: 'socail_c', // Updated to your online database name
   logging: false,
   entities: [__dirname + '/**/*.entity.ts', __dirname + '/**/*.entity.js'],
+  ssl: {
+    rejectUnauthorized: false,
+  }, // Enable SSL with a configuration that does not reject unauthorized certificates
 };
 
 @Module({
